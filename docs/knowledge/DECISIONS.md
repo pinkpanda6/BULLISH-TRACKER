@@ -1220,3 +1220,21 @@ Copy this block. Number sequentially.
   once soft-deleted rows from earlier work are excluded) / 404 alerts, matching exactly), then
   hard-deleted only those three test documents by their exact IDs to avoid leaving disabled test
   clutter behind. `npm test` and `npm run build` both green.
+
+### ADR-020 — Hosting: admin SPA on Vercel, API on a separate Node host
+
+- **Date**: 2026-10-05
+- **Status**: accepted
+- **Context**: Owner asked to host on Vercel. The starter's deployment model (`70-deployment.md`) is one
+  long-running Express process serving the built SPA, behind nginx/PM2. Vercel runs short-lived
+  serverless functions, which cannot host the in-process `setInterval` price job
+  (`jobs/stockPriceFetch.js`) or local-disk uploads.
+- **Decision**: Vercel serves only the built admin SPA (`vercel.json`). `/api/*` and `/uploads/*` are
+  rewritten to the API host, so the browser still sees one origin and the cookie session, `sameSite:
+  lax` and the production `API_URL: ""` setting work unchanged. The Express server keeps running on a
+  persistent Node host (Render/Railway/VPS).
+- **Consequences**: Two deploy targets. API host needs `NODE_ENV=production` and
+  `ALLOWED_ORIGINS=https://<vercel domain>`. The API sees Vercel's IP, not the end user's, so the rate
+  limiter and audit-trail IPs are less accurate until the proxy hop is revisited.
+- **Deviates from convention**: yes — `70-deployment.md` assumes a single-host deploy. The existing
+  `deploy.yml` (SSH/PM2) applies to the API host only.
