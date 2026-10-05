@@ -1,0 +1,28 @@
+node_modules/
+.vite/
+
+# Environment — holds live DB credentials
+.env
+.env.*
+!.env.example
+
+# Build output (produced by `npm run build`, never committed)
+apps/server/out/
+
+# Server runtime dirs
+apps/server/log/
+apps/server/uploads/
+apps/server/files/
+
+*.log
+npm-debug.log*
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
